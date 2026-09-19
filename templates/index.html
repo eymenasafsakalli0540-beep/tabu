@@ -195,11 +195,6 @@ async function startRound(){
 function renderRevealArea(){
   const area = document.getElementById('revealArea');
   document.getElementById('timerPhone').textContent = state.timeLeft + "s";
-  if (!revealed){
-    area.innerHTML = `<button class="reveal-btn" id="revealBtn">👁 Kelimeyi Gör</button>`;
-    document.getElementById('revealBtn').onclick = () => { revealed = true; renderRevealArea(); };
-    return;
-  }
   area.innerHTML = `
     <div class="word">${currentWord.word}</div>
     <ul class="forbidden">${currentWord.forbidden.map(f=>`<li>${f}</li>`).join('')}</ul>
