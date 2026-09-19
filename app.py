@@ -28,23 +28,47 @@ from threading import Lock
 
 app = Flask(__name__)
 
-# ---- Kelime listesi ----
+# ---- Kelime listesi (konu/ders etiketli) ----
 WORDS = [
-    {"word": "HİCRET", "forbidden": ["Mekke", "Medine", "Göç", "Yıl", "Müslüman"]},
-    {"word": "VEDA HUTBESİ", "forbidden": ["Son", "Hac", "Konuşma", "Arafat", "Vaaz"]},
-    {"word": "VAHİY", "forbidden": ["Cebrail", "Melek", "Allah", "Ayet", "İndirmek"]},
-    {"word": "ASHAB-I SUFFE", "forbidden": ["Mescit", "İlim", "Fakir", "Medine", "Eğitim"]},
-    {"word": "ENSAR", "forbidden": ["Medineli", "Yardım", "Misafir", "Mekkeli", "Kardeş"]},
-    {"word": "MUHACİR", "forbidden": ["Mekke", "Göç etmek", "Ayrılmak", "Medine", "Gitmek"]},
-    {"word": "HUDEYBİYE ANTLAŞMASI", "forbidden": ["Barış", "Müşrik", "Anlaşma", "Mekke", "Yıl"]},
-    {"word": "BEDİR SAVAŞI", "forbidden": ["İlk", "Mücadele", "Kuyu", "Zafer", "Asker"]},
-    {"word": "UHUD SAVAŞI", "forbidden": ["Dağ", "Okçu", "Hata", "Şehit", "Savaş"]},
-    {"word": "HENDEK SAVAŞI", "forbidden": ["Kazmak", "Savunma", "Selman-i Farisî", "Şehir", "Çukur"]},
-    {"word": "MEKKE'NİN FETHİ", "forbidden": ["Almak", "Kabe", "Kanlı", "Geri dönmek", "Put"]},
-    {"word": "EMİN (MUHAMMEDÜ'L-EMİN)", "forbidden": ["Güvenilir", "Dürüst", "Lakap", "Yalan", "Peygamber"]},
-    {"word": "HİRA MAĞARASI", "forbidden": ["Dağ", "Nur", "İbadet", "Yalnızlık", "İlk ayet"]},
-    {"word": "ASR-I SAADET", "forbidden": ["Mutluluk", "Asr", "Dönem", "Çağ", "Huzur"]},
-    {"word": "EHLİBEYT / HZ. FATIMA", "forbidden": ["Aile", "Evlat", "Kız", "Hz. Fatıma", "Soy"]},
+    # --- Siyer / Din Kültürü ---
+    {"word": "HİCRET", "category": "Siyer", "forbidden": ["Mekke", "Medine", "Göç", "Yıl", "Müslüman"]},
+    {"word": "VEDA HUTBESİ", "category": "Siyer", "forbidden": ["Son", "Hac", "Konuşma", "Arafat", "Vaaz"]},
+    {"word": "VAHİY", "category": "Siyer", "forbidden": ["Cebrail", "Melek", "Allah", "Ayet", "İndirmek"]},
+    {"word": "ASHAB-I SUFFE", "category": "Siyer", "forbidden": ["Mescit", "İlim", "Fakir", "Medine", "Eğitim"]},
+    {"word": "ENSAR", "category": "Siyer", "forbidden": ["Medineli", "Yardım", "Misafir", "Mekkeli", "Kardeş"]},
+    {"word": "MUHACİR", "category": "Siyer", "forbidden": ["Mekke", "Göç etmek", "Ayrılmak", "Medine", "Gitmek"]},
+    {"word": "HUDEYBİYE ANTLAŞMASI", "category": "Siyer", "forbidden": ["Barış", "Müşrik", "Anlaşma", "Mekke", "Yıl"]},
+    {"word": "BEDİR SAVAŞI", "category": "Siyer", "forbidden": ["İlk", "Mücadele", "Kuyu", "Zafer", "Asker"]},
+    {"word": "UHUD SAVAŞI", "category": "Siyer", "forbidden": ["Dağ", "Okçu", "Hata", "Şehit", "Savaş"]},
+    {"word": "HENDEK SAVAŞI", "category": "Siyer", "forbidden": ["Kazmak", "Savunma", "Selman-i Farisî", "Şehir", "Çukur"]},
+    {"word": "MEKKE'NİN FETHİ", "category": "Siyer", "forbidden": ["Almak", "Kabe", "Kanlı", "Geri dönmek", "Put"]},
+    {"word": "EMİN (MUHAMMEDÜ'L-EMİN)", "category": "Siyer", "forbidden": ["Güvenilir", "Dürüst", "Lakap", "Yalan", "Peygamber"]},
+    {"word": "HİRA MAĞARASI", "category": "Siyer", "forbidden": ["Dağ", "Nur", "İbadet", "Yalnızlık", "İlk ayet"]},
+    {"word": "ASR-I SAADET", "category": "Siyer", "forbidden": ["Mutluluk", "Asr", "Dönem", "Çağ", "Huzur"]},
+    {"word": "EHLİBEYT / HZ. FATIMA", "category": "Siyer", "forbidden": ["Aile", "Evlat", "Kız", "Hz. Fatıma", "Soy"]},
+    {"word": "MELEK VE AHİRET İNANCI", "category": "Din Kültürü", "forbidden": ["Cennet", "Cehennem", "Öldükten sonra", "Kıyamet", "Hesap"]},
+
+    # --- Sosyal Bilgiler ---
+    {"word": "ORHUN YAZITLARI", "category": "Sosyal Bilgiler", "forbidden": ["Göktürk", "Taş", "Yazı", "Bilge", "Tonyukuk"]},
+    {"word": "DİVÂN-I HÜMÂYUN", "category": "Sosyal Bilgiler", "forbidden": ["Osmanlı", "Padişah", "Bakan", "Vezir", "Meclis"]},
+    {"word": "HUKUK DEVLETİ", "category": "Sosyal Bilgiler", "forbidden": ["Kanun", "Adalet", "Mahkeme", "Hak", "Yasa"]},
+    {"word": "İPEK YOLU", "category": "Sosyal Bilgiler", "forbidden": ["Ticaret", "Kervan", "Çin", "Tüccar", "Yol"]},
+
+    # --- Fen Bilimleri ---
+    {"word": "MİTOZ (HÜCRE BÖLÜNMESİ)", "category": "Fen Bilimleri", "forbidden": ["Çoğalmak", "Parça", "DNA", "Organik", "Vücut"]},
+    {"word": "KİNETİK ENERJİ", "category": "Fen Bilimleri", "forbidden": ["Hareket", "Hız", "Potansiyel", "Kütle", "Fizik"]},
+    {"word": "ELEMENT (SAF MADDE)", "category": "Fen Bilimleri", "forbidden": ["Tek", "Cins", "Atom", "Periyodik", "Tablo"]},
+    {"word": "KOFUL", "category": "Fen Bilimleri", "forbidden": ["Atık", "Depo", "Su", "Hücre", "Madde"]},
+
+    # --- Matematik ---
+    {"word": "DENKLEM", "category": "Matematik", "forbidden": ["Çözüm", "Bilinmeyen", "Eşitlik", "Sayı", "X"]},
+    {"word": "RASYONEL SAYI", "category": "Matematik", "forbidden": ["Kesir", "Pay", "Payda", "Ondalık", "Oran"]},
+    {"word": "ORAN VE ORANTI", "category": "Matematik", "forbidden": ["Bölüm", "İki", "Çokluk", "Karşılaştırma", "Sabit"]},
+
+    # --- Türkçe ---
+    {"word": "ZARF (BELİRTEÇ)", "category": "Türkçe", "forbidden": ["Fiil", "Durum", "Zaman", "Nitelemek", "Sözcük"]},
+    {"word": "HİKÂYE UNSURLARI", "category": "Türkçe", "forbidden": ["Yer", "Zaman", "Kahraman", "Metin", "Olay"]},
+    {"word": "İLETİŞİM (BEN DİLİ / SEN DİLİ)", "category": "Türkçe", "forbidden": ["Suçlamak", "Konuşmak", "Hissetmek", "Mesaj", "Karşılıklı"]},
 ]
 
 lock = Lock()
