@@ -134,14 +134,20 @@ let usedIndexes = [];
 let currentWord = null;
 let timerInterval = null;
 let revealed = false;
+let selectedCategory = 'mix';
+let activeWordPool = [];
+
+function getPool(){
+  return selectedCategory === 'mix' ? WORDS : WORDS.filter(w => w.category === selectedCategory);
+}
 
 function pickWord(){
-  if (usedIndexes.length >= WORDS.length) usedIndexes = [];
+  if (usedIndexes.length >= activeWordPool.length) usedIndexes = [];
   let idx;
-  do { idx = Math.floor(Math.random()*WORDS.length); } while (usedIndexes.includes(idx));
+  do { idx = Math.floor(Math.random()*activeWordPool.length); } while (usedIndexes.includes(idx));
   usedIndexes.push(idx);
-  state.wordsLeft = WORDS.length - usedIndexes.length;
-  currentWord = WORDS[idx];
+  state.wordsLeft = activeWordPool.length - usedIndexes.length;
+  currentWord = activeWordPool[idx];
 }
 
 function renderPhone(){
@@ -150,6 +156,10 @@ function renderPhone(){
     <p class="sub">Bu ekranı sadece anlatan kişi görsün, tahtaya çevirmeyin 🙂</p>
 
     <div class="card">
+      <div class="field">
+        <label>Ders / Konu seç</label>
+        <select id="categorySel"></select>
+      </div>
       <div class="field">
         <label>Sırada hangi takım anlatıyor?</label>
         <select id="teamSel">
@@ -165,7 +175,7 @@ function renderPhone(){
     </div>
 
     <div class="card wordcard" id="wordCard" style="display:none;">
-      <span class="badge">Kalan kelime: <span id="leftCount">${state.wordsLeft}</span>/${WORDS.length}</span>
+      <span class="badge">Kalan kelime: <span id="leftCount">${state.wordsLeft}</span>/${activeWordPool.length || getPool().length}</span>
       <div id="timerPhone" class="timer">--</div>
       <div id="revealArea"></div>
     </div>
@@ -176,17 +186,30 @@ function renderPhone(){
     </div>
   `;
   document.getElementById('startBtn').onclick = startRound;
+
+  // Ders/konu listesini doldur
+  const catSel = document.getElementById('categorySel');
+  const cats = ["mix", ...Array.from(new Set(WORDS.map(w => w.category)))];
+  catSel.innerHTML = cats.map(c => {
+    const label = c === "mix" ? "🎲 Karışık (Hepsi)" : c;
+    const sel = c === selectedCategory ? "selected" : "";
+    return `<option value="${c}" ${sel}>${label}</option>`;
+  }).join('');
+  catSel.onchange = () => { selectedCategory = catSel.value; };
 }
 
 async function startRound(){
   state.activeTeam = document.getElementById('teamSel').value;
   const secs = parseInt(document.getElementById('timeInput').value || "60", 10);
+  activeWordPool = getPool();
+  usedIndexes = [];
   state.timeLeft = secs;
   state.running = true;
   state.lastResult = null;
   revealed = false;
   pickWord();
   document.getElementById('wordCard').style.display = 'block';
+  document.getElementById('leftCount').textContent = state.wordsLeft;
   renderRevealArea();
   await pushState(state);
   startTimer();
